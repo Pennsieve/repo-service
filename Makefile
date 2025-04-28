@@ -68,10 +68,12 @@ build-postgres: package-dbmigrate
 
 # Spin down active docker containers.
 docker-clean:
-	docker compose -f docker-compose.test.yml -f docker-compose.build-postgres.yml down
+	#docker compose -f docker-compose.test.yml -f docker-compose.build-postgres.yml down
+	docker compose -f docker-compose.test.yml down
 
 docker-image-clean:
-	docker rmi -f $(DBMIGRATE_IMAGE_NAME) $(DBMIGRATE_IMAGE_LATEST)
+	#docker rmi -f $(DBMIGRATE_IMAGE_NAME) $(DBMIGRATE_IMAGE_LATEST)
+	@echo "n/a (docker-image-clean)"
 
 clean: docker-clean
 		rm -rf $(WORKING_DIR)/bin
