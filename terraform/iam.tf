@@ -34,7 +34,7 @@ resource "aws_iam_policy" "repo_service_api_lambda_iam_policy" {
 data "aws_iam_policy_document" "collections_service_api_iam_policy_document" {
 
   statement {
-    sid    = "Logs-Permissions"
+    sid    = "LogsPermissions"
     effect = "Allow"
     actions = [
       "logs:CreateLogGroup",
@@ -47,7 +47,7 @@ data "aws_iam_policy_document" "collections_service_api_iam_policy_document" {
   }
 
   statement {
-    sid    = "EC2-Permissions"
+    sid    = "EC2Permissions"
     effect = "Allow"
     actions = [
       "ec2:CreateNetworkInterface",
@@ -60,7 +60,7 @@ data "aws_iam_policy_document" "collections_service_api_iam_policy_document" {
   }
 
   statement {
-    sid    = "RDS-Permissions"
+    sid    = "RDSPermissions"
     effect = "Allow"
 
     actions = [
@@ -71,7 +71,7 @@ data "aws_iam_policy_document" "collections_service_api_iam_policy_document" {
   }
 
   statement {
-    sid    = "SecretsManager-Permissions"
+    sid    = "SecretsManagerPermissions"
     effect = "Allow"
 
     actions = [
@@ -85,7 +85,7 @@ data "aws_iam_policy_document" "collections_service_api_iam_policy_document" {
   }
 
   statement {
-    sid    = "SSM-Permissions"
+    sid    = "SSMPermissions"
     effect = "Allow"
 
     actions = [
