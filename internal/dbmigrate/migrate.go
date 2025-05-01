@@ -3,7 +3,6 @@ package dbmigrate
 import (
 	"context"
 	"database/sql"
-	"embed"
 	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -17,9 +16,6 @@ import (
 	"net/url"
 	"strings"
 )
-
-//go:embed migrations/*.sql
-var migrationsFS embed.FS
 
 type DatabaseMigrator struct {
 	wrapped *migrate.Migrate
@@ -141,12 +137,6 @@ func newDatabaseMigrator(ctx context.Context, username, password, host string,
 	if err != nil {
 		return nil, closeOnError(fmt.Errorf("error creating migration database.Driver: %w", err), db)
 	}
-
-	// Create source.Driver which will read the .sql files from the migrations subdir.
-	//migrationsSource, err := iofs.New(migrationsFS, "migrations")
-	//if err != nil {
-	//	return nil, closeOnError(fmt.Errorf("error creating migration iofs source.Driver: %w", err), driver)
-	//}
 
 	// Now we can create the Migrate instance
 	m, err := migrate.NewWithInstance(
