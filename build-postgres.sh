@@ -12,10 +12,10 @@ ENVIRONMENT="${ENVIRONMENT:-local}"
 
 if [[ "$ENVIRONMENT" != "local" ]]; then
     echo "Environment is $ENVIRONMENT. Getting tag from git log and pushing images"
-    TAG="$(git log --name-only --oneline -2 | tail -n +2 | grep -E internal/dbmigrate/migrations | xargs basename -a | grep -E '^2.*\.sql$' | awk -F '_' '{print $1}' | sort -u | tail -n 1)"
+    TAG="$(git log --name-only --oneline -2 | tail -n +2 | grep -E cmd/dbmigrate/migrations | xargs basename -a | grep -E '^2.*\.sql$' | awk -F '_' '{print $1}' | sort -u | tail -n 1)"
 else
     echo "Environment is local. Getting tag from local filesystem and not pushing images"
-    TAG="$(find internal/dbmigrate/migrations | xargs basename -a | grep -E '^2.*\.sql$' | awk -F '_' '{print $1}' | sort -u | tail -n 1)"
+    TAG="$(find cmd/dbmigrate/migrations | xargs basename -a | grep -E '^2.*\.sql$' | awk -F '_' '{print $1}' | sort -u | tail -n 1)"
 fi
 
 ###################################

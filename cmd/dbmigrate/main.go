@@ -18,7 +18,7 @@ var migrationsFS embed.FS
 
 func main() {
 	ctx := context.Background()
-	var defaultSettings config.DefaultSettings
+	defaultSettings := config.NewDefaultSettings()
 	defaultSettings["POSTGRES_SCHEMA"] = "repositories"
 
 	migrateConfig, err := dbmigrate.LoadConfig(defaultSettings)
