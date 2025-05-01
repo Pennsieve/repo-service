@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"embed"
+	"fmt"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/pennsieve/repo-service/internal/dbmigrate"
 	"github.com/pennsieve/repo-service/internal/shared/config"
 	"log/slog"
@@ -9,6 +12,9 @@ import (
 )
 
 var logger = slog.Default()
+
+//go:embed migrations/*.sql
+var migrationsFS embed.FS
 
 func main() {
 	ctx := context.Background()
@@ -34,7 +40,14 @@ func main() {
 				slog.String("schema", migrateConfig.PostgresDB.Schema),
 			)).
 		Info("DB schema migration started")
-	m, err := dbmigrate.NewLocalMigrator(ctx, migrateConfig)
+
+	migrationsSource, err := iofs.New(migrationsFS, "migrations")
+	if err != nil {
+		logger.Error(fmt.Errorf("error creating migration iofs source.Driver: %w", err).Error())
+		os.Exit(1)
+	}
+
+	m, err := dbmigrate.NewLocalMigrator(ctx, migrateConfig, migrationsSource)
 	if err != nil {
 		logger.Error("error creating CollectionsMigrator", slog.Any("error", err))
 		os.Exit(1)

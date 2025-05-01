@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/rds/auth"
-	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/pgx/v5"
+	"github.com/golang-migrate/migrate/v4/source"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"io"
 	"net"
@@ -23,7 +25,7 @@ type DatabaseMigrator struct {
 	wrapped *migrate.Migrate
 }
 
-func NewRDSProxyDatabaseMigrator(ctx context.Context, migrateConfig Config, awsConfig aws.Config) (*DatabaseMigrator, error) {
+func NewRDSProxyDatabaseMigrator(ctx context.Context, migrateConfig Config, migrationsSource source.Driver, awsConfig aws.Config) (*DatabaseMigrator, error) {
 	authenticationToken, err := auth.BuildAuthToken(
 		ctx,
 		fmt.Sprintf("%s:%d", migrateConfig.PostgresDB.Host, migrateConfig.PostgresDB.Port),
@@ -42,10 +44,11 @@ func NewRDSProxyDatabaseMigrator(ctx context.Context, migrateConfig Config, awsC
 		migrateConfig.PostgresDB.Port,
 		migrateConfig.PostgresDB.Database,
 		migrateConfig.PostgresDB.Schema,
+		migrationsSource,
 		migrateConfig.VerboseLogging)
 }
 
-func NewLocalMigrator(ctx context.Context, migrateConfig Config) (*DatabaseMigrator, error) {
+func NewLocalMigrator(ctx context.Context, migrateConfig Config, migrationsSource source.Driver) (*DatabaseMigrator, error) {
 	if migrateConfig.PostgresDB.Password == nil {
 		return nil, fmt.Errorf("password cannot be nil for local Migrator")
 	}
@@ -57,6 +60,7 @@ func NewLocalMigrator(ctx context.Context, migrateConfig Config) (*DatabaseMigra
 		migrateConfig.PostgresDB.Port,
 		migrateConfig.PostgresDB.Database,
 		migrateConfig.PostgresDB.Schema,
+		migrationsSource,
 		migrateConfig.VerboseLogging)
 
 }
@@ -109,6 +113,7 @@ func newDatabaseMigrator(ctx context.Context, username, password, host string,
 	port int,
 	databaseName string,
 	schemaName string,
+	migrationsSource source.Driver,
 	verboseLogging bool) (*DatabaseMigrator, error) {
 
 	// Migrate needs two things, a database.Driver to access Postgres, and a source.Driver to read the
@@ -138,16 +143,16 @@ func newDatabaseMigrator(ctx context.Context, username, password, host string,
 	}
 
 	// Create source.Driver which will read the .sql files from the migrations subdir.
-	migrationsSource, err := iofs.New(migrationsFS, "migrations")
-	if err != nil {
-		return nil, closeOnError(fmt.Errorf("error creating migration iofs source.Driver: %w", err), driver)
-	}
+	//migrationsSource, err := iofs.New(migrationsFS, "migrations")
+	//if err != nil {
+	//	return nil, closeOnError(fmt.Errorf("error creating migration iofs source.Driver: %w", err), driver)
+	//}
 
 	// Now we can create the Migrate instance
 	m, err := migrate.NewWithInstance(
-		"collections iofs",
+		"migration iofs",
 		migrationsSource,
-		"collections postgres",
+		"postgres",
 		driver)
 	if err != nil {
 		return nil, closeOnError(fmt.Errorf("error creating Migrate instance: %w", err), driver, migrationsSource)
