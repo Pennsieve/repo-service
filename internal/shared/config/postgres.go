@@ -65,6 +65,11 @@ func (b *PostgresDBConfigBuilder) WithPort(port int) *PostgresDBConfigBuilder {
 	return b
 }
 
+func (b *PostgresDBConfigBuilder) WithSchema(schema string) *PostgresDBConfigBuilder {
+	b.c.Schema = schema
+	return b
+}
+
 func (b *PostgresDBConfigBuilder) Build() PostgresDBConfig {
 	if len(b.c.Host) == 0 {
 		b.c.Host = GetEnvOrDefault("POSTGRES_HOST", b.d["POSTGRES_HOST"])

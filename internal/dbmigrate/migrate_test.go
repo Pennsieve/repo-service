@@ -63,9 +63,11 @@ func TestDatabaseMigrator(t *testing.T) {
 	port, err := strconv.Atoi(portStr)
 	require.NoError(t, err)
 
+	schema := "repositories"
 	migrateConfig := dbmigratetest.Config(
 		configtest.WithHost(host),
 		configtest.WithPort(port),
+		configtest.WithSchema(schema),
 	)
 
 	migrationsSource, err := iofs.New(migrationsFS, "migrations")

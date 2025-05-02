@@ -33,3 +33,9 @@ func WithHost(host string) PostgresOption {
 		return builder.WithHost(host)
 	}
 }
+
+func WithSchema(schema string) PostgresOption {
+	return func(builder *config.PostgresDBConfigBuilder) *config.PostgresDBConfigBuilder {
+		return builder.WithSchema(schema)
+	}
+}
