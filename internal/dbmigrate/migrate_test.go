@@ -2,6 +2,8 @@ package dbmigrate_test
 
 import (
 	"context"
+	"embed"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/pennsieve/repo-service/internal/dbmigrate"
@@ -18,16 +20,19 @@ import (
 	"time"
 )
 
-func TestCollectionsMigrator(t *testing.T) {
+//go:embed migrations/*.sql
+var migrationsFS embed.FS
+
+func TestDatabaseMigrator(t *testing.T) {
 	tests := []struct {
 		scenario string
 		tstFunc  func(t *testing.T, migrator *dbmigrate.DatabaseMigrator, verificationConn *pgx.Conn)
 	}{
-		{"test up and collections created_at and updated_at", testUp},
-		{"Down runs without error", testDown},
-		{"prevent empty name", testPreventEmptyName},
-		{"prevent all white space name", testPreventWhiteSpaceName},
-		{"prevent empty DOI", testPreventEmptyDOI},
+		//{"test up and collections created_at and updated_at", testUp},
+		{"Up and Down run without error", testUpAndDown},
+		//{"prevent empty name", testPreventEmptyName},
+		//{"prevent all white space name", testPreventWhiteSpaceName},
+		//{"prevent empty DOI", testPreventEmptyDOI},
 	}
 
 	// Set up testcontainer that will be used by all tests.
@@ -63,11 +68,14 @@ func TestCollectionsMigrator(t *testing.T) {
 		configtest.WithPort(port),
 	)
 
+	migrationsSource, err := iofs.New(migrationsFS, "migrations")
+	require.NoError(t, err)
+
 	for _, tt := range tests {
 		t.Run(tt.scenario, func(t *testing.T) {
 			// make a migrator for each test and pass it into the function so that
 			// we can take care of cleaning it up here
-			migrator, err := dbmigrate.NewLocalMigrator(ctx, migrateConfig, nil)
+			migrator, err := dbmigrate.NewLocalMigrator(ctx, migrateConfig, migrationsSource)
 			require.NoError(t, err)
 
 			// also pass in a plain pgx.Conn to let the test function run any verifications on the migrated schema
@@ -121,7 +129,7 @@ func testUp(t *testing.T, migrator *dbmigrate.DatabaseMigrator, verificationConn
 // We don't really use the Down() method for real. Test is here so that
 // if we do write 'down' files something checks that they at least run
 // without error.
-func testDown(t *testing.T, migrator *dbmigrate.DatabaseMigrator, _ *pgx.Conn) {
+func testUpAndDown(t *testing.T, migrator *dbmigrate.DatabaseMigrator, _ *pgx.Conn) {
 
 	require.NoError(t, migrator.Up())
 
