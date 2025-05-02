@@ -17,6 +17,10 @@ ansiColor('xterm') {
             }
 
             if (!isMain) {
+                stage('Build Postgres Image') {
+                      sh "IMAGE_TAG=${imageTag} ENVIRONMENT=jenkins make build-postgres"
+                }
+
                 stage('Build') {
                     sh "IMAGE_TAG=${imageTag} make package"
                 }
@@ -25,6 +29,13 @@ ansiColor('xterm') {
             if (isMain) {
                 stage('Build and Push') {
                     sh "IMAGE_TAG=${imageTag} make publish"
+                }
+
+                stage('Run Migrations') {
+                  build job: "Migrations/dev-migrations/dev-repo-service-postgres-migrations",
+                          parameters: [
+                                  string(name: 'IMAGE_TAG', value: imageTag)
+                          ]
                 }
 
                 stage("Deploy") {

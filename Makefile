@@ -4,8 +4,8 @@ LAMBDA_BUCKET ?= "pennsieve-cc-lambda-functions-use1"
 WORKING_DIR   ?= "$(shell pwd)"
 SERVICE_NAME  ?= "repo-service"
 API_PACKAGE_NAME  ?= "${SERVICE_NAME}-api-${IMAGE_TAG}.zip"
-#DBMIGRATE_IMAGE_NAME ?= "pennsieve/${SERVICE_NAME}-dbmigrate:${IMAGE_TAG}"
-#DBMIGRATE_IMAGE_LATEST ?= "pennsieve/${SERVICE_NAME}-dbmigrate:latest"
+DBMIGRATE_IMAGE_NAME ?= "pennsieve/${SERVICE_NAME}-dbmigrate:${IMAGE_TAG}"
+DBMIGRATE_IMAGE_LATEST ?= "pennsieve/${SERVICE_NAME}-dbmigrate:latest"
 
 .DEFAULT: help
 
@@ -19,7 +19,7 @@ help:
 
 local-services:
 	docker compose -f docker-compose.test.yml down --remove-orphans
-	docker compose -f docker-compose.test.yml -f docker-compose.local.override.yml up -d pennsievedb-collections
+	docker compose -f docker-compose.test.yml -f docker-compose.local.override.yml up -d local-testing
 
 test: local-services
 	go test -v -p 1 ./...
@@ -34,7 +34,9 @@ test-ci-local:
 	docker compose -f docker-compose.test.yml down --remove-orphans
 	TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from test
 
-package: #package-dbmigrate
+package: package-api package-dbmigrate
+
+package-api:
 	@echo "***************************"
 	@echo "*   Building API lambda   *"
 	@echo "***************************"
@@ -43,13 +45,13 @@ package: #package-dbmigrate
 		cd $(WORKING_DIR)/bin/api/; \
 		zip -r $(WORKING_DIR)/bin/api/$(API_PACKAGE_NAME) .
 
-#package-dbmigrate:
-#	@echo "************************************************"
-#	@echo "*   Building Collections dbmigrate container   *"
-#	@echo "************************************************"
-#	@echo ""
-#	docker buildx build --platform linux/amd64 -t $(DBMIGRATE_IMAGE_NAME) -f Dockerfile.cloudwrap-dbmigrate .
-#	docker tag $(DBMIGRATE_IMAGE_NAME) $(DBMIGRATE_IMAGE_LATEST)
+package-dbmigrate:
+	@echo "************************************************"
+	@echo "*   Building Collections dbmigrate container   *"
+	@echo "************************************************"
+	@echo ""
+	docker buildx build --platform linux/amd64 -t $(DBMIGRATE_IMAGE_NAME) -f Dockerfile.cloudwrap-dbmigrate .
+	docker tag $(DBMIGRATE_IMAGE_NAME) $(DBMIGRATE_IMAGE_LATEST)
 
 publish: package
 	@echo "*****************************"
@@ -57,11 +59,11 @@ publish: package
 	@echo "*****************************"
 	@echo ""
 	aws s3 cp $(WORKING_DIR)/bin/api/$(API_PACKAGE_NAME) s3://$(LAMBDA_BUCKET)/$(SERVICE_NAME)/
-#	@echo "**************************************************"
-#	@echo "*   Publishing Collections dbmigrate container   *"
-#	@echo "**************************************************"
-#	@echo ""
-#	docker push $(DBMIGRATE_IMAGE_NAME)
+	@echo "**************************************************"
+	@echo "*   Publishing Collections dbmigrate container   *"
+	@echo "**************************************************"
+	@echo ""
+	docker push $(DBMIGRATE_IMAGE_NAME)
 
 build-postgres: package-dbmigrate
 	./build-postgres.sh
