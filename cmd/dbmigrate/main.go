@@ -5,8 +5,8 @@ import (
 	"embed"
 	"fmt"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
-	"github.com/pennsieve/repo-service/internal/dbmigrate"
-	"github.com/pennsieve/repo-service/internal/shared/config"
+	"github.com/pennsieve/dbmigrate-go/pkg/dbmigrate"
+	"github.com/pennsieve/dbmigrate-go/pkg/shared/config"
 	"log/slog"
 	"os"
 )
@@ -21,7 +21,7 @@ func main() {
 	defaultSettings := config.NewDefaultSettings()
 	defaultSettings["POSTGRES_SCHEMA"] = "repositories"
 
-	migrateConfig, err := dbmigrate.LoadConfig(defaultSettings)
+	migrateConfig, err := config.LoadConfig(defaultSettings)
 	if err != nil {
 		logger.Error("error loading config", slog.Any("error", err))
 		os.Exit(1)
