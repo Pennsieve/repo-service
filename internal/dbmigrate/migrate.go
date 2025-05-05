@@ -84,7 +84,7 @@ func (m *DatabaseMigrator) Down() error {
 	return nil
 }
 
-// Drop will drop all tables in the collections schema.
+// Drop will drop all tables in the schema.
 // Used for testing
 func (m *DatabaseMigrator) Drop() error {
 	return m.wrapped.Drop()
@@ -97,10 +97,10 @@ func (m *DatabaseMigrator) Close() (source error, database error) {
 func (m *DatabaseMigrator) CloseAndLogError() {
 	sourceErr, databaseErr := m.Close()
 	if sourceErr != nil {
-		m.wrapped.Log.Printf("warning: source error closing CollectionsMigrator: %v", sourceErr)
+		m.wrapped.Log.Printf("warning: source error closing DatabaseMigrator: %v", sourceErr)
 	}
 	if databaseErr != nil {
-		m.wrapped.Log.Printf("warning: database error closing CollectionsMigrator: %v", databaseErr)
+		m.wrapped.Log.Printf("warning: database error closing DatabaseMigrator: %v", databaseErr)
 
 	}
 }
