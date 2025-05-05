@@ -28,10 +28,10 @@ resource "aws_iam_role_policy_attachment" "repo_service_api_lambda_iam_policy_at
 resource "aws_iam_policy" "repo_service_api_lambda_iam_policy" {
   name   = "${var.environment_name}-${var.service_name}-api-lambda-iam-policy-${data.terraform_remote_state.region.outputs.aws_region_shortname}"
   path   = "/"
-  policy = data.aws_iam_policy_document.collections_service_api_iam_policy_document.json
+  policy = data.aws_iam_policy_document.repo_service_api_iam_policy_document.json
 }
 
-data "aws_iam_policy_document" "collections_service_api_iam_policy_document" {
+data "aws_iam_policy_document" "repo_service_api_iam_policy_document" {
 
   statement {
     sid    = "LogsPermissions"

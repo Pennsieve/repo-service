@@ -47,7 +47,7 @@ package-api:
 
 package-dbmigrate:
 	@echo "************************************************"
-	@echo "*   Building Collections dbmigrate container   *"
+	@echo "*   Building dbmigrate container               *"
 	@echo "************************************************"
 	@echo ""
 	docker buildx build --platform linux/amd64 -t $(DBMIGRATE_IMAGE_NAME) -f Dockerfile.cloudwrap-dbmigrate .
@@ -60,7 +60,7 @@ publish: package
 	@echo ""
 	aws s3 cp $(WORKING_DIR)/bin/api/$(API_PACKAGE_NAME) s3://$(LAMBDA_BUCKET)/$(SERVICE_NAME)/
 	@echo "**************************************************"
-	@echo "*   Publishing Collections dbmigrate container   *"
+	@echo "*   Publishing dbmigrate container               *"
 	@echo "**************************************************"
 	@echo ""
 	docker push $(DBMIGRATE_IMAGE_NAME)

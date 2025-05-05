@@ -49,7 +49,7 @@ func main() {
 
 	m, err := dbmigrate.NewLocalMigrator(ctx, migrateConfig, migrationsSource)
 	if err != nil {
-		logger.Error("error creating CollectionsMigrator", slog.Any("error", err))
+		logger.Error("error creating DatabaseMigrator", slog.Any("error", err))
 		os.Exit(1)
 	}
 	defer m.CloseAndLogError()
@@ -59,5 +59,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger.Info("collections DB schema migration complete")
+	logger.Info("Database schema migration complete")
 }

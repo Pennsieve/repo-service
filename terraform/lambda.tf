@@ -24,7 +24,7 @@ resource "aws_lambda_function" "repo_service_api_lambda" {
 
       POSTGRES_HOST                 = data.terraform_remote_state.pennsieve_postgres.outputs.rds_proxy_endpoint,
       POSTGRES_USER                 = var.api_postgres_user,
-      POSTGRES_REPOS_DATABASE       = var.pennsieve_postgres_database,
+      POSTGRES_DATABASE             = var.pennsieve_postgres_database,
       DISCOVER_SERVICE_HOST         = local.discover_service_host,
       LOG_LEVEL                     = local.log_level
     }

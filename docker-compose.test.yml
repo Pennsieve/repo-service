@@ -11,7 +11,7 @@ services:
       - POSTGRES_HOST=pennsievedb-repositories
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
-      - POSTGRES_COLLECTIONS_DATABASE=postgres
+      - POSTGRES_DATABASE=postgres
       # This var needs to be set to 'host.docker.internal' if the Docker server is Desktop and not Engine.
       # On Jenkins it is Engine and so, not needed, but if you run the test container
       # locally you will probably need it. Run the 'test-ci-local' Make target instead of 'test-ci'
